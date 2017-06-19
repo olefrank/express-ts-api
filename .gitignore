@@ -1,0 +1,9 @@
+# folders
+.DS_Store
+node_modules
+.idea
+dist
+
+# files
+yarn.lock
+npm-debug.log
