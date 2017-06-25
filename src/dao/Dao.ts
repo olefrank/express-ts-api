@@ -3,58 +3,58 @@ import posts from '../data/posts';
 
 export class Dao {
 
-    private static _instance: Dao;
-    private _id: number;
-    private _posts:Post[];
+    public static getInstance(): Dao {
+        if (!Dao.instance) {
+            Dao.instance = new Dao();
+        }
+        return Dao.instance;
+    }
+
+    private static instance: Dao;
+    private id: number;
+    private posts: Post[];
 
     private constructor() {
-        this._posts = posts;
-        this._id = this._posts.length;
+        this.posts = posts;
+        this.id = this.posts.length;
     }
 
-    static getInstance():Dao {
-        if (!Dao._instance) {
-            Dao._instance = new Dao();
-        }
-        return Dao._instance;
-    }
-
-    getId = () => {
-        return this._id += 1;
-
-    };
-
-    getPostById = (id: number): Post => {
-        const post: Post = this._posts.find(post => {
+    public getPostById = (id: number): Post => {
+        const post: Post = this.posts.find((post: Post) => {
             return post.id === id;
         });
         return post;
-    };
+    }
 
-    getAllPosts = (): Post[] => {
-        return this._posts;
-    };
+    public getAllPosts = (): Post[] => {
+        return this.posts;
+    }
 
-    savePost = (post: Post): void => {
+    public savePost = (post: Post): void => {
         post.id = this.getId();
-        this._posts.push(post);
-    };
+        this.posts.push(post);
+    }
 
-    updatePost = (post: Post): boolean => {
-        const idx = this._posts.findIndex(elem => post.id === elem.id);
-        this._posts[idx] = post;
+    public updatePost = (post: Post): boolean => {
+        const idx = this.posts.findIndex((elem: Post) => post.id === elem.id);
+        this.posts[idx] = post;
 
         return idx > -1;
-    };
+    }
 
-    deletePost = (id: number): boolean => {
-        const idx = this._posts.findIndex(elem => id === elem.id);
-
+    public deletePost = (id: number): boolean => {
+        const idx = this.posts.findIndex((elem: Post) => id === elem.id);
 
         if (idx > -1) {
-            this._posts.splice(idx, 1);
+            this.posts.splice(idx, 1);
         }
 
         return idx > -1;
-    };
+    }
+
+    private getId = () => {
+        return this.id += 1;
+    }
+
+
 }
