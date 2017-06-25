@@ -1,29 +1,22 @@
 import {Post} from '../model/Post';
+import posts from '../data/posts';
 
 export class Dao {
 
-    private _instance: Dao;
+    private static _instance: Dao;
     private _id: number;
-    private _posts:Post[] = [
-        {
-            "id": 1,
-            "author": "Ole",
-            "heading": "Overskrift 1",
-            "body": "Dette er en test på body tekst."
-        },
-        {
-            "id": 2,
-            "author": "Mie",
-            "heading": "Mies Overskrift trækker - ja, overskrifter",
-            "body": "Hej jeg hedder Mie og er god til det der med computer."
-        }
-    ];
+    private _posts:Post[];
 
-    constructor() {
-        if (!this._instance) {
-            this._instance = new Dao();
-            this._id = this._posts.length;
+    private constructor() {
+        this._posts = posts;
+        this._id = this._posts.length;
+    }
+
+    static getInstance():Dao {
+        if (!Dao._instance) {
+            Dao._instance = new Dao();
         }
+        return Dao._instance;
     }
 
     getId = () => {
