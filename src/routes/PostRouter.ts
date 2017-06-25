@@ -13,7 +13,7 @@ export class PostRouter {
         this.router.get('/:id', this.getOne);
         this.router.post('/', this.savePost);
         this.router.put('/', this.updatePost);
-        this.router.delete('/', this.deletePost);
+        this.router.delete('/:id', this.deletePost);
     }
 
     getAll = (req: Request, res: Response, next: NextFunction) => {
@@ -27,17 +27,12 @@ export class PostRouter {
 
         if (post) {
             res.status(200)
-                .send({
-                    message: 'Success',
-                    status: res.status,
-                    post
-                });
+                .send(post);
         }
         else {
             res.status(404)
                 .send({
                     message: 'No post found with the given id.',
-                    status: res.status
                 });
         }
     };
@@ -56,37 +51,27 @@ export class PostRouter {
             res.status(404)
                 .send({
                     message: 'No post found with the given id.',
-                    status: res.status
                 });
         }
         else {
             res.status(200)
-                .send({
-                    message: 'Success',
-                    status: res.status,
-                    post
-                });
+                .send(post);
         }
     };
 
     deletePost = (req: Request, res: Response, next: NextFunction) => {
-        const id: number = req.body.id;
+        const id: number = parseInt(req.params.id, 10);
         const post = this._dao.deletePost(id);
 
         if (!post) {
             res.status(404)
                 .send({
                     message: 'No post found with the given id.',
-                    status: res.status
                 });
         }
         else {
             res.status(200)
-                .send({
-                    message: 'Success',
-                    status: res.status,
-                    post
-                });
+                .send(post);
         }
     };
 

@@ -5,7 +5,8 @@
     "moduleResolution": "node",
     "target": "es6",
     "outDir": "dist",
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "lib": [ "es2015" ]
   },
   "include": [
     "src/**/*.ts"
