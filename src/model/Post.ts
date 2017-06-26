@@ -15,10 +15,10 @@ export class Post implements IPost {
     public heading: string;
     public body: string;
 
-    constructor(id: number, author: string, heading: string, body: string) {
-        this.id = id;
+    constructor(author: string, heading: string, body: string, id?: number) {
         this.author = author;
         this.heading = heading;
         this.body = body;
+        this.id = id;
     }
 }

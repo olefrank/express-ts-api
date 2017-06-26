@@ -3,6 +3,9 @@ import posts from '../data/posts';
 
 export class Dao {
 
+    private noPostFound: string = "No post found with id";
+    private dbSaveError: string = "Error saving to database";
+
     public static getInstance(): Dao {
         if (!Dao.instance) {
             Dao.instance = new Dao();
@@ -23,7 +26,13 @@ export class Dao {
         const post: Post = this.posts.find((post: Post) => {
             return post.id === id;
         });
-        return post;
+
+        if (!post) {
+            throw new Error(`${this.noPostFound} ${id}`);
+        }
+        else {
+            return post;
+        }
     }
 
     public getAllPosts = (): Post[] => {
@@ -32,24 +41,34 @@ export class Dao {
 
     public savePost = (post: Post): void => {
         post.id = this.getId();
-        this.posts.push(post);
+
+        try {
+            this.posts.push(post);
+        }
+        catch(e) {
+            throw new Error(this.dbSaveError);
+        }
     }
 
-    public updatePost = (post: Post): boolean => {
+    public updatePost = (post: Post): void => {
         const idx = this.posts.findIndex((elem: Post) => post.id === elem.id);
-        this.posts[idx] = post;
-
-        return idx > -1;
+        if (idx === -1) {
+            throw new Error(`${this.noPostFound} ${post.id}`);
+        }
+        else {
+            this.posts[idx] = post;
+        }
     }
 
-    public deletePost = (id: number): boolean => {
+    public deletePost = (id: number): void => {
         const idx = this.posts.findIndex((elem: Post) => id === elem.id);
 
-        if (idx > -1) {
+        if (idx === -1) {
+            throw new Error(`${this.noPostFound} ${id}`);
+        }
+        else {
             this.posts.splice(idx, 1);
         }
-
-        return idx > -1;
     }
 
     private getId = () => {

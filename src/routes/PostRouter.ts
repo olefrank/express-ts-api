@@ -1,5 +1,6 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {IPost, Post} from "../model/Post";
+import {IPostVM, PostVM} from "../viewmodel/PostVM";
 import {Dao} from "../dao/Dao";
 
 export class PostRouter {
@@ -17,61 +18,66 @@ export class PostRouter {
     }
 
     public getAll = (req: Request, res: Response, next: NextFunction) => {
-        const posts: Post[] = this.dao.getAllPosts();
-        res.send(posts);
+        const posts: IPost[] = this.dao.getAllPosts();
+        const postsVM: IPostVM[] = PostVM.postsToPostsVM(posts);
+        res.send(postsVM);
     }
 
     public getOne = (req: Request, res: Response, next: NextFunction) => {
-        const id: number = parseInt(req.params.id, 10);
-        const post: IPost = this.dao.getPostById(id);
+        try {
+            const id: number = parseInt(req.params.id, 10);
+            const post: IPost = this.dao.getPostById(id);
+            const postVM: IPostVM = PostVM.postToPostVM(post);
 
-        if (post) {
-            res.status(200)
-                .send(post);
+            res.send(postVM);
         }
-        else {
+        catch(e) {
             res.status(404)
                 .send({
-                    message: "No post found with the given id.",
+                    message: e.message,
                 });
         }
     }
 
     public savePost = (req: Request, res: Response, next: NextFunction) => {
-        const post: IPost = req.body as Post;
-        this.dao.savePost(post);
-        res.send(post);
+        try {
+            const post: IPost = PostVM.mapToPost(req.body);
+            this.dao.savePost(post);
+            res.send(post);
+        }
+        catch(e) {
+            res.status(500)
+                .send({
+                    message: e.message,
+                });
+        }
     }
 
     public updatePost = (req: Request, res: Response, next: NextFunction) => {
-        const post: IPost = req.body as Post;
-        const success = this.dao.updatePost(post);
-
-        if (!success) {
+        try {
+            const post: IPost = PostVM.mapToPost(req.body);
+            this.dao.updatePost(post);
+            res.send(post);
+        }
+        catch(e) {
             res.status(404)
                 .send({
-                    message: "No post found with the given id.",
+                    message: e.message,
                 });
-        }
-        else {
-            res.status(200)
-                .send(post);
         }
     }
 
     public deletePost = (req: Request, res: Response, next: NextFunction) => {
-        const id: number = parseInt(req.params.id, 10);
-        const post = this.dao.deletePost(id);
-
-        if (!post) {
+        try {
+            const id: number = parseInt(req.params.id, 10);
+            const post = this.dao.deletePost(id);
+            res.send(post);
+        }
+        catch(e) {
             res.status(404)
                 .send({
-                    message: "No post found with the given id.",
+                    message: e.message,
                 });
-        }
-        else {
-            res.status(200)
-                .send(post);
         }
     }
 }
