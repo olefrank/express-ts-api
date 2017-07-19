@@ -1,18 +1,49 @@
 /* tslint:disable:no-unused-expression */
+/* tslint:disable:only-arrow-functions */
 
-import * as mocha from "mocha";
 import {Response} from "express";
 import * as chai from "chai";
 import chaiHttp = require("chai-http");
 
-import app from "../src/App";
-import {Post} from "../src/model/Post";
-import {PostVM} from "../src/viewmodel/PostVM";
+import app from "../../src/App";
+import {Post} from "../../src/model/Post";
+
+import {IDao, Dao} from "../../src/dao/Dao";
+
+import * as sinon from "sinon";
+import * as sinonTest from "sinon-test";
+
+const test = sinonTest.configureTest(sinon);
 
 chai.use(chaiHttp);
 const expect = chai.expect;
 
-describe("GET api/v1/posts", () => {
+const instance: IDao = Dao.getInstance();
+
+const data = [
+    {
+        author: "A1",
+        body: "Body1",
+        heading: "Heading1",
+        id: 1,
+    },
+    {
+        author: "A2",
+        body: "Body2",
+        heading: "Heading2",
+        id: 2,
+    },
+    {
+        author: "A3",
+        body: "Body3",
+        heading: "Heading3",
+        id: 3,
+    },
+];
+
+describe("GET api/v1/posts", test(function() {
+
+    sinon.stub(instance, "getAllPosts").returns(data);
 
     it("responds with json array of Posts", () => {
         return chai.request(app).get("/api/v1/posts")
@@ -20,19 +51,20 @@ describe("GET api/v1/posts", () => {
                 expect(res.status).to.equal(200);
                 expect(res).to.be.json;
 
-                const json: object = JSON.parse(JSON.stringify(res.body));
-                const post: Post = json as Post;
+                // convert to Post
+                const posts: Post = res.body as Post;
 
-                expect(post).to.be.an("array");
-                expect(post).to.have.length(2);
+                expect(posts).to.be.an("array");
+                expect(posts).to.have.length(3);
             });
     });
 
-    it("should include a Post with id 2", () => {
+    it("posts should have the correct keys", () => {
         return chai.request(app).get("/api/v1/posts")
             .then((res: ChaiHttp.Response) => {
-                const post: Post = res.body.find((post: Post) => post.id === 2);
-                expect(post).to.exist;
+                const post: Post = res.body[0];
+                const numKeys = Object.keys(post).length;
+                expect(numKeys).to.equal(3);
                 expect(post).to.have.all.keys([
                     "id",
                     "author",
@@ -40,38 +72,33 @@ describe("GET api/v1/posts", () => {
                 ]);
             });
     });
-});
+}));
 
-describe("GET api/v1/posts/:id", () => {
+describe("GET api/v1/posts/:id", test(function() {
 
-    it("responds with single Post", () => {
+    const stub: sinon.SinonStub = sinon.stub(instance, "getPostById").returns(data);
+    stub.withArgs(1).returns(data[0]);
+    stub.withArgs(99999).callThrough();
+
+    it("responds with single Post with id: 1", test(function() {
         return chai.request(app).get("/api/v1/posts/1")
             .then((res: ChaiHttp.Response) => {
                 expect(res.status).to.equal(200);
                 expect(res).to.be.json;
 
-                const json: object = JSON.parse( JSON.stringify(res.body) );
-                const post: Post = json as Post;
+                const post: Post = res.body as Post;
 
-                expect(post).to.be.an("object");
-            });
-    });
-
-    it("should return Post with id 1", () => {
-        return chai.request(app).get("/api/v1/posts/1")
-            .then((res: ChaiHttp.Response) => {
-                const post = res.body as Post;
                 expect(post.id).to.equal(1);
             });
-    });
+    }));
 
-    it("should not have a Post with id 3", () => {
-        return chai.request(app).get("/api/v1/posts/3")
+    it("should not have a Post with id 99999", () => {
+        return chai.request(app).get("/api/v1/posts/99999")
             .catch((res: ChaiHttp.Response) => {
                 expect(res.status).to.equal(404);
             });
     });
-});
+}));
 
 describe("POST api/v1/posts/:id", () => {
 
@@ -83,8 +110,7 @@ describe("POST api/v1/posts/:id", () => {
                 expect(res.status).to.equal(200);
                 expect(res).to.be.json;
 
-                const json: object = JSON.parse( JSON.stringify(res.body) );
-                const post: Post = json as Post;
+                const post: Post = res.body as Post;
 
                 expect(post).to.be.an("object");
             });
@@ -94,21 +120,15 @@ describe("POST api/v1/posts/:id", () => {
         const author = "Ole";
         const heading = "A heading";
         const body = "A body text here...";
+        const data = {author, heading, body};
+
         const res: ChaiHttp.Response = await chai.request(app)
             .post("/api/v1/posts")
-            .send({
-                author,
-                body,
-                heading,
-            });
+            .send(data);
 
-        const json: object = JSON.parse( JSON.stringify(res.body) );
-        const post: Post = json as Post;
-
-        expect(post.id).to.equal(4);
-        expect(post.author).to.equal(author);
-        expect(post.heading).to.equal(heading);
-        expect(post.body).to.equal(body);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.key("message");
+        expect(res.body.message).to.equal("Post Saved");
     });
 });
 
@@ -119,27 +139,16 @@ describe("PUT api/v1/posts/", () => {
         const heading = "Change";
         const body = "Change also here";
         const id = 1;
+        const data = {author, heading, body, id};
 
         // do PUT
-        await chai.request(app)
+        const res: ChaiHttp.Response = await chai.request(app)
             .put("/api/v1/posts")
-            .send({
-                author,
-                body,
-                heading,
-                id,
-            });
+            .send(data);
 
-        // do GET to test if updated
-        const res: ChaiHttp.Response = await chai.request(app).get("/api/v1/posts/1");
-        const json: object = JSON.parse( JSON.stringify(res.body) );
-        const post: PostVM = json as PostVM;
-
-        expect(post.id).to.equal(1);
-        expect(post.author).to.equal(author);
-        expect(post.text).to.equal(body); // PostVM
-        // expect(post.heading).to.equal(heading);
-        // expect(post.body).to.equal(body);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.have.key("message");
+        expect(res.body.message).to.equal("Post Updated");
     });
 });
 

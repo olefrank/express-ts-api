@@ -1,10 +1,15 @@
-import {Post} from '../model/Post';
-import posts from '../data/posts';
+import {Post} from "../model/Post";
+import posts from "../data/posts";
 
-export class Dao {
+export interface IDao {
+    getPostById(id: number): Post;
+    getAllPosts(): Post[];
+    savePost(post: Post): void;
+    updatePost(post: Post): void;
+    deletePost(id: number): void;
+}
 
-    private noPostFound: string = "No post found with id";
-    private dbSaveError: string = "Error saving to database";
+export class Dao implements IDao {
 
     public static getInstance(): Dao {
         if (!Dao.instance) {
@@ -16,6 +21,8 @@ export class Dao {
     private static instance: Dao;
     private id: number;
     private posts: Post[];
+    private noPostFound: string = "No post found with id";
+    private dbSaveError: string = "Error saving to database";
 
     private constructor() {
         this.posts = posts;
@@ -45,7 +52,7 @@ export class Dao {
         try {
             this.posts.push(post);
         }
-        catch(e) {
+        catch( e ) {
             throw new Error(this.dbSaveError);
         }
     }
@@ -71,7 +78,7 @@ export class Dao {
         }
     }
 
-    private getId = () => {
+    private getId = (): number => {
         return this.id += 1;
     }
 

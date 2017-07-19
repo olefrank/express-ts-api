@@ -43,7 +43,10 @@ export class PostRouter {
         try {
             const post: IPost = PostVM.mapToPost(req.body);
             this.dao.savePost(post);
-            res.send(post);
+            res.status(200)
+                .send({
+                    message: "Post Saved",
+                });
         }
         catch(e) {
             res.status(500)
@@ -57,7 +60,10 @@ export class PostRouter {
         try {
             const post: IPost = PostVM.mapToPost(req.body);
             this.dao.updatePost(post);
-            res.send(post);
+            res.status(200)
+                .send({
+                    message: "Post Updated",
+                });
         }
         catch(e) {
             res.status(404)
