@@ -18,7 +18,7 @@ const test = sinonTest.configureTest(sinon);
 chai.use(chaiHttp);
 const expect = chai.expect;
 
-const instance: IDao = Dao.getInstance();
+const instance: IDao = Dao.Instance;
 
 const data = [
     {

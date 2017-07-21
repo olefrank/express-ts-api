@@ -1,86 +1,105 @@
 import {Post} from "../model/Post";
-import posts from "../data/posts";
+import {Connection, Repository} from "typeorm";
+import {Db} from "./Db";
 
 export interface IDao {
-    getPostById(id: number): Post;
-    getAllPosts(): Post[];
+    getPostById(id: number): Promise<Post>;
+    getAllPosts(): Promise<Post[]>;
     savePost(post: Post): void;
     updatePost(post: Post): void;
-    deletePost(id: number): void;
+    deletePost(post: Post): void;
 }
 
 export class Dao implements IDao {
 
-    public static getInstance(): Dao {
-        if (!Dao.instance) {
-            Dao.instance = new Dao();
-        }
-        return Dao.instance;
-    }
-
-    private static instance: Dao;
-    private id: number;
-    private posts: Post[];
-    private noPostFound: string = "No post found with id";
-    private dbSaveError: string = "Error saving to database";
+    private static instance: IDao;
+    private db: Db;
 
     private constructor() {
-        this.posts = posts;
-        this.id = this.posts.length;
+        this.db = Db.Instance;
     }
 
-    public getPostById = (id: number): Post => {
-        const post: Post = this.posts.find((post: Post) => {
-            return post.id === id;
-        });
-
-        if (!post) {
-            throw new Error(`${this.noPostFound} ${id}`);
+    static get Instance() {
+        if (this.instance === null || this.instance === undefined) {
+            this.instance = new Dao();
         }
-        else {
-            return post;
-        }
+        return this.instance;
     }
 
-    public getAllPosts = (): Post[] => {
-        return this.posts;
-    }
-
-    public savePost = (post: Post): void => {
-        post.id = this.getId();
-
+    public getPostById = async (id: number): Promise<Post> => {
         try {
-            this.posts.push(post);
+            const conn: Connection = await this.db.getConnection();
+            const repo: Repository<Post> = conn.getRepository(Post);
+
+            return await repo.findOneById(id);
         }
-        catch( e ) {
-            throw new Error(this.dbSaveError);
+        catch (e) {
+            throw new Error(e);
         }
     }
 
-    public updatePost = (post: Post): void => {
-        const idx = this.posts.findIndex((elem: Post) => post.id === elem.id);
-        if (idx === -1) {
-            throw new Error(`${this.noPostFound} ${post.id}`);
-        }
-        else {
-            this.posts[idx] = post;
-        }
-    }
+    public getAllPosts = async (): Promise<Post[]> => {
+        let conn: Connection;
+        try {
+            conn = await this.db.getConnection();
+            const repo: Repository<Post> = conn.getRepository(Post);
 
-    public deletePost = (id: number): void => {
-        const idx = this.posts.findIndex((elem: Post) => id === elem.id);
-
-        if (idx === -1) {
-            throw new Error(`${this.noPostFound} ${id}`);
+            return await repo.find();
         }
-        else {
-            this.posts.splice(idx, 1);
+        catch (e) {
+            throw new Error(e);
+        }
+        finally {
+            if (conn) conn.close();
         }
     }
 
-    private getId = (): number => {
-        return this.id += 1;
+    public savePost = async (post: Post): Promise<void> => {
+        let conn: Connection;
+        try {
+            conn = await this.db.getConnection();
+            const repo: Repository<Post> = conn.getRepository(Post);
+
+            await repo.persist(post);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+        finally {
+            if (conn) conn.close();
+        }
     }
 
+    public updatePost = async (post: Post): Promise<void> => {
+        let conn: Connection;
+        try {
+            conn = await this.db.getConnection();
+            const repo: Repository<Post> = conn.getRepository(Post);
+
+            await repo.save(post);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+        finally {
+            if (conn) conn.close();
+        }
+    }
+
+    public deletePost = async (post: Post): Promise<void> => {
+        let conn: Connection;
+        try {
+            conn = await this.db.getConnection();
+            const repo: Repository<Post> = conn.getRepository(Post);
+
+            await repo.remove(post);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+        finally {
+            if (conn) conn.close();
+        }
+    }
 
 }

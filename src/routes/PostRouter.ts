@@ -1,14 +1,14 @@
 import {NextFunction, Request, Response, Router} from "express";
 import {IPost, Post} from "../model/Post";
 import {IPostVM, PostVM} from "../viewmodel/PostVM";
-import {Dao} from "../dao/Dao";
+import {IDao, Dao} from "../dao/Dao";
 
 export class PostRouter {
     public router: Router;
-    private dao: Dao;
+    private dao: IDao;
 
     constructor() {
-        this.dao = Dao.getInstance();
+        this.dao = Dao.Instance;
         this.router = Router();
         this.router.get("/", this.getAll);
         this.router.get("/:id", this.getOne);
@@ -17,73 +17,64 @@ export class PostRouter {
         this.router.delete("/:id", this.deletePost);
     }
 
-    public getAll = (req: Request, res: Response, next: NextFunction) => {
-        const posts: IPost[] = this.dao.getAllPosts();
-        const postsVM: IPostVM[] = PostVM.postsToPostsVM(posts);
-        res.send(postsVM);
+    public getAll = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const posts: IPost[] = await this.dao.getAllPosts();
+            const postsVM: IPostVM[] = PostVM.toPostsVM(posts);
+
+            res.send(postsVM);
+        }
+        catch (e) {
+            res.status(500).send({ message: e.message });
+        }
     }
 
-    public getOne = (req: Request, res: Response, next: NextFunction) => {
+    public getOne = async (req: Request, res: Response, next: NextFunction) => {
         try {
             const id: number = parseInt(req.params.id, 10);
-            const post: IPost = this.dao.getPostById(id);
-            const postVM: IPostVM = PostVM.postToPostVM(post);
+            const post: IPost = await this.dao.getPostById(id);
+            const postVM: IPostVM = PostVM.toPostVM(post);
 
             res.send(postVM);
         }
-        catch(e) {
-            res.status(404)
-                .send({
-                    message: e.message,
-                });
+        catch (e) {
+            res.status(500).send({ message: e.message });
         }
     }
 
-    public savePost = (req: Request, res: Response, next: NextFunction) => {
+    public savePost = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const post: IPost = PostVM.mapToPost(req.body);
-            this.dao.savePost(post);
-            res.status(200)
-                .send({
-                    message: "Post Saved",
-                });
+            const post: IPost = PostVM.toPost(req.body);
+            await this.dao.savePost(post);
+
+            res.send({ message: "Post saved" });
         }
-        catch(e) {
-            res.status(500)
-                .send({
-                    message: e.message,
-                });
+        catch (e) {
+            res.status(500).send({ message: e.message });
         }
     }
 
-    public updatePost = (req: Request, res: Response, next: NextFunction) => {
+    public updatePost = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const post: IPost = PostVM.mapToPost(req.body);
-            this.dao.updatePost(post);
-            res.status(200)
-                .send({
-                    message: "Post Updated",
-                });
+            const post: IPost = PostVM.toPost(req.body);
+            await this.dao.updatePost(post);
+
+            res.send({ message: "Post updated" });
         }
-        catch(e) {
-            res.status(404)
-                .send({
-                    message: e.message,
-                });
+        catch (e) {
+            res.status(500).send({ message: e.message });
         }
     }
 
-    public deletePost = (req: Request, res: Response, next: NextFunction) => {
+    public deletePost = async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const id: number = parseInt(req.params.id, 10);
-            const post = this.dao.deletePost(id);
-            res.send(post);
+            const post: IPost = PostVM.toPost(req.body);
+            await this.dao.deletePost(post);
+
+            res.send({ message: "Post Deleted" });
         }
-        catch(e) {
-            res.status(404)
-                .send({
-                    message: e.message,
-                });
+        catch (e) {
+            res.status(500).send({ message: e.message });
         }
     }
 }

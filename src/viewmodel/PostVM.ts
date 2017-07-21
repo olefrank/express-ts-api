@@ -1,4 +1,4 @@
-import {Post} from "../model/post";
+import {IPost, Post} from "../model/post";
 
 export interface IPostVM {
     id: number;
@@ -12,22 +12,21 @@ export interface IPostVM {
 export class PostVM implements IPostVM {
 
     // Post
-    public static postsToPostsVM(posts: Post[]): PostVM[] {
+    public static toPostsVM(posts: Post[]): PostVM[] {
         return posts.map((post: Post) => {
             return new PostVM(post.id, post.author, post.body);
         });
     }
 
-    public static postToPostVM(post: Post): PostVM {
+    public static toPostVM(post: Post): PostVM {
         return new PostVM(post.id, post.author, post.body);
     }
 
-    public static mapToPost(input: Post): Post {
+    public static toPost(input: Post): IPost {
         return new Post(
             input.author || undefined,
             input.heading || undefined,
-            input.body || undefined,
-            input.id || undefined,
+            input.body || undefined
         );
     }
 
