@@ -1,6 +1,5 @@
 import {Connection, createConnection} from "typeorm";
 import * as path from "path";
-import {Post} from "../model/Post";
 
 export class Db {
 
@@ -20,8 +19,7 @@ export class Db {
                 autoSchemaSync: true,
                 database: "api",
                 entities: [
-                    Post,
-                    // path.join(__dirname, "..", "model/*.js")
+                    path.join(__dirname, "..", "model/*.js"),
                 ],
                 host: "localhost",
                 password: "",
