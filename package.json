@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
-    "test": "mocha --reporter spec --compilers ts:ts-node/register 'test/**/*.test.ts'",
-    "tdd": "mocha --watch --reporter min --compilers ts:ts-node/register 'test/**/*.test.ts'"
+    "start": "NODE_ENV=dev node dist/index.js",
+    "test": "NODE_ENV=test mocha --reporter spec --compilers ts:ts-node/register 'test/**/*.test.ts'",
+    "tdd": "NODE_ENV=test mocha --watch --reporter min --compilers ts:ts-node/register 'test/**/*.test.ts'"
   },
   "keywords": [],
   "author": "",

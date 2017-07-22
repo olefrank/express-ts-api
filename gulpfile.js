@@ -2,7 +2,7 @@
 
 const gulp = require('gulp');
 const ts = require('gulp-typescript');
-const JSON_FILES = ['src/*.json', 'src/**/*.json'];
+const JSON_FILES = ['*.json', 'src/*.json', 'src/**/*.json'];
 const tslint = require('gulp-tslint');
 
 // pull in the project TypeScript config
@@ -23,4 +23,4 @@ gulp.task('assets', function() {
   .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['watch', 'assets']);
+gulp.task('default', ['watch']);

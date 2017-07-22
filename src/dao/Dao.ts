@@ -1,6 +1,5 @@
 import {Post} from "../model/Post";
-import {Connection, Repository} from "typeorm";
-import {Db} from "./Db";
+import {Connection, Repository, createConnection} from "typeorm";
 
 export interface IDao {
     getPostById(id: number): Promise<Post>;
@@ -13,11 +12,8 @@ export interface IDao {
 export class Dao implements IDao {
 
     private static instance: IDao;
-    private db: Db;
 
-    private constructor() {
-        this.db = Db.Instance;
-    }
+    private constructor() {}
 
     static get Instance() {
         if (this.instance === null || this.instance === undefined) {
@@ -28,7 +24,7 @@ export class Dao implements IDao {
 
     public getPostById = async (id: number): Promise<Post> => {
         try {
-            const conn: Connection = await this.db.getConnection();
+            const conn: Connection = await createConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
             return await repo.findOneById(id);
@@ -41,7 +37,7 @@ export class Dao implements IDao {
     public getAllPosts = async (): Promise<Post[]> => {
         let conn: Connection;
         try {
-            conn = await this.db.getConnection();
+            conn = await createConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
             return await repo.find();
@@ -57,7 +53,7 @@ export class Dao implements IDao {
     public savePost = async (post: Post): Promise<void> => {
         let conn: Connection;
         try {
-            conn = await this.db.getConnection();
+            conn = await createConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
             await repo.persist(post);
@@ -73,7 +69,7 @@ export class Dao implements IDao {
     public updatePost = async (post: Post): Promise<void> => {
         let conn: Connection;
         try {
-            conn = await this.db.getConnection();
+            conn = await createConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
             await repo.save(post);
@@ -89,7 +85,7 @@ export class Dao implements IDao {
     public deletePost = async (post: Post): Promise<void> => {
         let conn: Connection;
         try {
-            conn = await this.db.getConnection();
+            conn = await createConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
             await repo.remove(post);
