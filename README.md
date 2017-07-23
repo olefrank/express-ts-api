@@ -1,10 +1,14 @@
-# Developing a RESTful API With Node and TypeScript
+# Playground project for developing a RESTful API With Node and TypeScript
 
-## Want to learn how to build this project?
+## Technologies used:
+- node
+- express
+- typescript
+- gulp
+- type-orm
+- mocha / chai / sinon
 
-Check out the [blog post](http://mherman.org/blog/2016/11/05/developing-a-restful-api-with-node-and-typescript/#.WB3zyeErJE4).
-
-## Want to use this project?
+## How to use this project
 
 1. Fork/Clone
 1. Install dependencies - `npm install`
@@ -16,3 +20,12 @@ Check out the [blog post](http://mherman.org/blog/2016/11/05/developing-a-restfu
 ## Sample Projects
 
 - [Simple whois REST API](https://github.com/wingsuitist/whoissv)
+
+
+## Notes
+
+* getting started with express and typescript
+[http://mherman.org/blog/2016/11/05/developing-a-restful-api-with-node-and-typescript](http://mherman.org/blog/2016/11/05/developing-a-restful-api-with-node-and-typescript)
+
+* guide to test express api (not typescript)
+[https://scotch.io/tutorials/test-a-node-restful-api-with-mocha-and-chai](https://scotch.io/tutorials/test-a-node-restful-api-with-mocha-and-chai)
