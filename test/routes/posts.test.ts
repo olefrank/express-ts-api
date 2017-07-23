@@ -1,11 +1,11 @@
 /* tslint:disable:no-unused-expression */
 /* tslint:disable:only-arrow-functions */
 
-import {Response} from "express";
+import {Application, Response} from "express";
 import * as chai from "chai";
 import chaiHttp = require("chai-http");
 
-import app from "../../src/App";
+import App from "../../src/App";
 
 import {Post} from "../../src/model/Post";
 import {IDao, Dao} from "../../src/dao/Dao";
@@ -20,35 +20,55 @@ const expect = chai.expect;
 
 const instance: IDao = Dao.Instance;
 
-describe("GET api/v1/posts", test( () => {
+let express: Application;
+const app: App = new App();
 
-    beforeEach((done) => {
-        instance.testHelper();
-        done();
+app.ready
+    .then(() => {
+    })
+    .catch((err) => {
+        console.error(err);
     });
 
-    it("responds with array of 2 json objects", () => {
-        return chai.request(app).get("/api/v1/posts")
-            .then((res: ChaiHttp.Response) => {
-                expect(res.status).to.equal(200);
-                expect(res).to.be.json;
-                expect(res.body).to.be.an("array");
-                expect(res.body.length).to.equal(2);
-            });
-    });
+setTimeout(() => {
+    express = app.express;
+    describe("GET api/v1/posts", test(() => {
 
-    it("json objects has correct shape", () => {
-        return chai.request(app)
-            .get("/api/v1/posts")
-            .then((res: ChaiHttp.Response) => {
-                const all: Post[] = res.body as Post[];
-                const post: Post = all[0];
+        beforeEach((done) => {
+            instance.saveTestPosts().then( done() );
+        });
 
-                expect( post ).to.have.all.keys( ["id", "author", "text"] );
-            });
-    });
+        afterEach((done) => {
+            instance.deleteAllPosts().then( done() );
+        });
 
-}));
+        it("responds with array of 2 json objects", () => {
+            return chai.request(express).get("/api/v1/posts")
+                .then((res: ChaiHttp.Response) => {
+                    expect(res.status).to.equal(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.be.an("array");
+                    expect(res.body.length).to.equal(2);
+                });
+        });
+
+        it("json objects has correct shape", () => {
+            return chai
+                .request(express)
+                .get("/api/v1/posts")
+                .then(
+                    (res: ChaiHttp.Response) => {
+                        const all: Post[] = res.body as Post[];
+                        const post: Post = all[0];
+
+                        expect(post).to.have.all.keys(["id", "author", "text"]);
+                    });
+        });
+
+    }));
+
+    run();
+}, 500);
 
 // describe("GET api/v1/posts/:id", test(function() {
 //

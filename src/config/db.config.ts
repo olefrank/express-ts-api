@@ -11,7 +11,7 @@ const dev: ConnectionOptions = {
     password: "",
     database: "api",
     entities: [
-        path.join(__dirname, "../model/*{.ts, .js}"),
+        path.join(__dirname, "../model/*.js"),
     ],
     autoSchemaSync: true,
 };
@@ -24,7 +24,7 @@ const test: ConnectionOptions = {
     password: "",
     database: "api_test",
     entities: [
-        path.join(__dirname, "../model/*{.ts, .js}"),
+        path.join(__dirname, "../model/*.ts"),
     ],
     autoSchemaSync: true,
 };

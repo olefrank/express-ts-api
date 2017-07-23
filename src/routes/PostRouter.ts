@@ -13,7 +13,7 @@ export class PostRouter {
         this.router.get("/", this.getAll);
         this.router.get("/:id", this.getOne);
         this.router.post("/", this.savePost);
-        this.router.put("/", this.updatePost);
+        this.router.put("/", this.savePost);
         this.router.delete("/:id", this.deletePost);
     }
 
@@ -50,19 +50,6 @@ export class PostRouter {
             await this.dao.savePost(post);
 
             res.send({ message: "Post saved" });
-        }
-        catch (e) {
-            console.error(e);
-            res.status(500).send({ message: e.message });
-        }
-    }
-
-    public updatePost = async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const post: IPost = PostVM.toPost(req.body);
-            await this.dao.updatePost(post);
-
-            res.send({ message: "Post updated" });
         }
         catch (e) {
             console.error(e);
