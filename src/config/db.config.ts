@@ -1,6 +1,6 @@
 /* tslint:disable:object-literal-sort-keys */
 
-import {ConnectionOptions, DriverOptions} from "typeorm";
+import {ConnectionOptions} from "typeorm";
 import * as path from "path";
 
 const dev: ConnectionOptions = {

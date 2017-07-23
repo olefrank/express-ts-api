@@ -25,6 +25,7 @@ export class PostRouter {
             res.send(postsVM);
         }
         catch (e) {
+            console.error(e);
             res.status(500).send({ message: e.message });
         }
     }
@@ -38,6 +39,7 @@ export class PostRouter {
             res.send(postVM);
         }
         catch (e) {
+            console.error(e);
             res.status(500).send({ message: e.message });
         }
     }
@@ -50,6 +52,7 @@ export class PostRouter {
             res.send({ message: "Post saved" });
         }
         catch (e) {
+            console.error(e);
             res.status(500).send({ message: e.message });
         }
     }
@@ -62,6 +65,7 @@ export class PostRouter {
             res.send({ message: "Post updated" });
         }
         catch (e) {
+            console.error(e);
             res.status(500).send({ message: e.message });
         }
     }
@@ -74,6 +78,7 @@ export class PostRouter {
             res.send({ message: "Post Deleted" });
         }
         catch (e) {
+            console.error(e);
             res.status(500).send({ message: e.message });
         }
     }
