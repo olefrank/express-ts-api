@@ -8,7 +8,7 @@ export interface IDao {
     savePost(post: Post): void;
     updatePost(post: Post): void;
     deletePost(post: Post): void;
-    deleteAllPosts(): void;
+    testHelper(): void;
 }
 
 export class Dao implements IDao {
@@ -30,7 +30,6 @@ export class Dao implements IDao {
     public getPostById = async (id: number): Promise<Post> => {
         let conn: Connection;
         try {
-            // conn: Connection = await createConnection();
             conn = await this.db.getConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
@@ -47,7 +46,6 @@ export class Dao implements IDao {
     public getAllPosts = async (): Promise<Post[]> => {
         let conn: Connection;
         try {
-            // conn = await createConnection();
             conn = await this.db.getConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
@@ -64,7 +62,6 @@ export class Dao implements IDao {
     public savePost = async (post: Post): Promise<void> => {
         let conn: Connection;
         try {
-            // conn = await createConnection();
             conn = await this.db.getConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
@@ -81,7 +78,6 @@ export class Dao implements IDao {
     public updatePost = async (post: Post): Promise<void> => {
         let conn: Connection;
         try {
-            // conn = await createConnection();
             conn = await this.db.getConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
@@ -98,7 +94,6 @@ export class Dao implements IDao {
     public deletePost = async (post: Post): Promise<void> => {
         let conn: Connection;
         try {
-            // conn = await createConnection();
             conn = await this.db.getConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
@@ -112,13 +107,19 @@ export class Dao implements IDao {
         }
     }
 
-    public deleteAllPosts = async (): Promise<void> => {
+    public async testHelper(): Promise<void> {
         let conn: Connection;
+        const post1: Post = new Post("Author1", "Heading1", "Body Text1");
+        const post2: Post = new Post("Author2", "Heading2", "Body Text2");
+        const posts: Post[] = [post1, post2];
+
         try {
             conn = await this.db.getConnection();
             const repo: Repository<Post> = conn.getRepository(Post);
 
-            await repo.clear();
+            repo.clear().then((data) => {
+                repo.persist(posts);
+            });
         }
         catch (e) {
             throw new Error(e);

@@ -22,46 +22,32 @@ const instance: IDao = Dao.Instance;
 
 describe("GET api/v1/posts", test( () => {
 
-    beforeEach( (done) => {
-        instance.deleteAllPosts();
+    beforeEach((done) => {
+        instance.testHelper();
         done();
     });
 
-    it("responds with array", () => {
+    it("responds with array of 2 json objects", () => {
         return chai.request(app).get("/api/v1/posts")
             .then((res: ChaiHttp.Response) => {
                 expect(res.status).to.equal(200);
+                expect(res).to.be.json;
                 expect(res.body).to.be.an("array");
+                expect(res.body.length).to.equal(2);
             });
     });
 
-    // it("responds with json array of Posts", () => {
-    //     return chai.request(app).get("/api/v1/posts")
-    //         .then((res: ChaiHttp.Response) => {
-    //             expect(res.status).to.equal(200);
-    //             expect(res).to.be.json;
-    //
-    //             // convert to Post
-    //             const posts: Post = res.body as Post;
-    //
-    //             expect(posts).to.be.an("array");
-    //             expect(posts).to.have.length(3);
-    //         });
-    // });
+    it("json objects has correct shape", () => {
+        return chai.request(app)
+            .get("/api/v1/posts")
+            .then((res: ChaiHttp.Response) => {
+                const all: Post[] = res.body as Post[];
+                const post: Post = all[0];
 
-    // it("posts should have the correct keys", () => {
-    //     return chai.request(app).get("/api/v1/posts")
-    //         .then((res: ChaiHttp.Response) => {
-    //             const post: Post = res.body[0];
-    //             const numKeys = Object.keys(post).length;
-    //             expect(numKeys).to.equal(3);
-    //             expect(post).to.have.all.keys([
-    //                 "id",
-    //                 "author",
-    //                 "text",
-    //             ]);
-    //         });
-    // });
+                expect( post ).to.have.all.keys( ["id", "author", "text"] );
+            });
+    });
+
 }));
 
 // describe("GET api/v1/posts/:id", test(function() {
