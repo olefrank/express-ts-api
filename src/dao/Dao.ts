@@ -1,86 +1,80 @@
 import {Post} from "../model/Post";
-import posts from "../data/posts";
+import {Connection, Repository, getEntityManager} from "typeorm";
 
 export interface IDao {
-    getPostById(id: number): Post;
-    getAllPosts(): Post[];
-    savePost(post: Post): void;
-    updatePost(post: Post): void;
-    deletePost(id: number): void;
+    getPostById(id: number): Promise<Post>;
+    getAllPosts(): Promise<Post[]>;
+    savePost(post: Post): Promise<Post>;
+    deletePost(post: Post): Promise<Post>;
+    setupTestPosts(): Promise<void>;
 }
 
 export class Dao implements IDao {
 
-    public static getInstance(): Dao {
-        if (!Dao.instance) {
-            Dao.instance = new Dao();
+    private static instance: IDao;
+
+    private constructor() {}
+
+    static get Instance() {
+        if (this.instance === null || this.instance === undefined) {
+            this.instance = new Dao();
         }
-        return Dao.instance;
+        return this.instance;
     }
 
-    private static instance: Dao;
-    private id: number;
-    private posts: Post[];
-    private noPostFound: string = "No post found with id";
-    private dbSaveError: string = "Error saving to database";
-
-    private constructor() {
-        this.posts = posts;
-        this.id = this.posts.length;
-    }
-
-    public getPostById = (id: number): Post => {
-        const post: Post = this.posts.find((post: Post) => {
-            return post.id === id;
-        });
-
-        if (!post) {
-            throw new Error(`${this.noPostFound} ${id}`);
+    public getPostById = (id: number): Promise<Post> => {
+        try {
+            const repo: Repository<Post> = getEntityManager().getRepository(Post);
+            return repo.findOneById(id);
         }
-        else {
-            return post;
+        catch (e) {
+            throw new Error(e);
         }
     }
 
-    public getAllPosts = (): Post[] => {
-        return this.posts;
+    public getAllPosts = (): Promise<Post[]> => {
+        try {
+            const repo: Repository<Post> = getEntityManager().getRepository(Post);
+            return repo.find();
+        }
+        catch (e) {
+            throw new Error(e);
+        }
     }
 
-    public savePost = (post: Post): void => {
-        post.id = this.getId();
+    public savePost = (post: Post): Promise<Post> => {
+        try {
+            const repo: Repository<Post> = getEntityManager().getRepository(Post);
+            return repo.persist(post);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+    }
+
+    public deletePost = (post: Post): Promise<Post> => {
+        try {
+            const repo: Repository<Post> = getEntityManager().getRepository(Post);
+            return repo.remove(post);
+        }
+        catch (e) {
+            throw new Error(e);
+        }
+    }
+
+    public async setupTestPosts(): Promise<void> {
+        const post1: Post = new Post("Author1", "Heading1", "Body Text1");
+        const post2: Post = new Post("Author2", "Heading2", "Body Text2");
+        const posts: Post[] = [post1, post2];
 
         try {
-            this.posts.push(post);
+            const repo: Repository<Post> = getEntityManager().getRepository(Post);
+            await repo.clear();
+            await repo.persist(posts);
         }
-        catch( e ) {
-            throw new Error(this.dbSaveError);
-        }
-    }
-
-    public updatePost = (post: Post): void => {
-        const idx = this.posts.findIndex((elem: Post) => post.id === elem.id);
-        if (idx === -1) {
-            throw new Error(`${this.noPostFound} ${post.id}`);
-        }
-        else {
-            this.posts[idx] = post;
+        catch (e) {
+            throw new Error(e);
         }
     }
-
-    public deletePost = (id: number): void => {
-        const idx = this.posts.findIndex((elem: Post) => id === elem.id);
-
-        if (idx === -1) {
-            throw new Error(`${this.noPostFound} ${id}`);
-        }
-        else {
-            this.posts.splice(idx, 1);
-        }
-    }
-
-    private getId = (): number => {
-        return this.id += 1;
-    }
-
 
 }

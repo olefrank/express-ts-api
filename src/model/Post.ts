@@ -1,3 +1,5 @@
+import {Entity, Column, PrimaryGeneratedColumn} from "typeorm";
+
 export interface IPost {
     id: number;
     author: string;
@@ -8,11 +10,19 @@ export interface IPost {
 /**
  * Class to model a blog post
  */
+@Entity()
 export class Post implements IPost {
 
+    @PrimaryGeneratedColumn()
     public id: number;
+
+    @Column()
     public author: string;
+
+    @Column()
     public heading: string;
+
+    @Column("text")
     public body: string;
 
     constructor(author: string, heading: string, body: string, id?: number) {

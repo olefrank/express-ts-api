@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
-    "test": "mocha --reporter spec --compilers ts:ts-node/register 'test/**/*.test.ts'",
-    "tdd": "mocha --watch --reporter min --compilers ts:ts-node/register 'test/**/*.test.ts'"
+    "start": "NODE_ENV=dev node dist/index.js",
+    "start:test": "NODE_ENV=test node dist/index.js",
+    "test": "NODE_ENV=test mocha --delay --reporter spec --compilers ts:ts-node/register 'test/**/*.test.ts'",
+    "tdd": "NODE_ENV=test mocha --delay --watch --reporter min --compilers ts:ts-node/register 'test/**/*.test.ts'"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +27,7 @@
     "chai-http": "^3.0.0",
     "class-validator": "^0.7.0",
     "gulp": "^3.9.1",
+    "gulp-clean": "^0.3.2",
     "gulp-tslint": "^8.1.1",
     "gulp-typescript": "^3.1.1",
     "mocha": "^3.1.2",
@@ -39,6 +41,9 @@
     "body-parser": "^1.15.2",
     "debug": "^2.2.0",
     "express": "^4.14.0",
-    "morgan": "^1.7.0"
+    "morgan": "^1.7.0",
+    "mysql": "^2.13.0",
+    "reflect-metadata": "^0.1.10",
+    "typeorm": "0.1.0-alpha.32"
   }
 }
