@@ -16,10 +16,10 @@ export class Post implements IPost {
     @PrimaryGeneratedColumn()
     public id: number;
 
-    @Column("text")
+    @Column()
     public author: string;
 
-    @Column("text")
+    @Column()
     public heading: string;
 
     @Column("text")

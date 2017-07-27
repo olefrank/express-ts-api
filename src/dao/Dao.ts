@@ -6,8 +6,7 @@ export interface IDao {
     getAllPosts(): Promise<Post[]>;
     savePost(post: Post): Promise<Post>;
     deletePost(post: Post): Promise<Post>;
-    deleteAllPosts(): Promise<void>;
-    saveTestPosts(): Promise<Post[]>;
+    setupTestPosts(): Promise<void>;
 }
 
 export class Dao implements IDao {
@@ -63,24 +62,15 @@ export class Dao implements IDao {
         }
     }
 
-    public deleteAllPosts(): Promise<void> {
-        try {
-            const repo: Repository<Post> = getEntityManager().getRepository(Post);
-            return repo.clear();
-        }
-        catch (e) {
-            throw new Error(e);
-        }
-    }
-
-    public saveTestPosts(): Promise<Post[]> {
+    public async setupTestPosts(): Promise<void> {
         const post1: Post = new Post("Author1", "Heading1", "Body Text1");
         const post2: Post = new Post("Author2", "Heading2", "Body Text2");
         const posts: Post[] = [post1, post2];
 
         try {
             const repo: Repository<Post> = getEntityManager().getRepository(Post);
-            return repo.save(posts);
+            await repo.clear();
+            await repo.persist(posts);
         }
         catch (e) {
             throw new Error(e);

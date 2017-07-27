@@ -12,6 +12,7 @@ import {IDao, Dao} from "../../src/dao/Dao";
 
 import * as sinon from "sinon";
 import * as sinonTest from "sinon-test";
+import {Connection, getConnectionManager} from "typeorm";
 
 const test = sinonTest.configureTest(sinon);
 
@@ -25,76 +26,95 @@ const app: App = new App();
 
 app.ready
     .then(() => {
+        express = app.express;
     })
     .catch((err) => {
         console.error(err);
     });
 
 setTimeout(() => {
-    express = app.express;
-    describe("GET api/v1/posts", test(() => {
+
+    after((done) => {
+        const conn: Connection = getConnectionManager().get();
+        conn.close();
+        done();
+    })
+
+    describe("Posts tests", () => {
 
         beforeEach((done) => {
-            instance.saveTestPosts().then( done() );
+            instance.setupTestPosts().then(done);
         });
 
-        afterEach((done) => {
-            instance.deleteAllPosts().then( done() );
-        });
+        /**
+         *  GET all posts
+         */
+        describe("GET api/v1/posts", () => {
 
-        it("responds with array of 2 json objects", () => {
-            return chai.request(express).get("/api/v1/posts")
-                .then((res: ChaiHttp.Response) => {
-                    expect(res.status).to.equal(200);
-                    expect(res).to.be.json;
-                    expect(res.body).to.be.an("array");
-                    expect(res.body.length).to.equal(2);
-                });
-        });
-
-        it("json objects has correct shape", () => {
-            return chai
-                .request(express)
-                .get("/api/v1/posts")
-                .then(
-                    (res: ChaiHttp.Response) => {
-                        const all: Post[] = res.body as Post[];
-                        const post: Post = all[0];
-
-                        expect(post).to.have.all.keys(["id", "author", "text"]);
+            it("responds with array of 2 json objects", () => {
+                return chai.request(express).get("/api/v1/posts")
+                    .then((res: ChaiHttp.Response) => {
+                        expect(res.status).to.equal(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.be.an("array");
+                        expect(res.body.length).to.equal(2);
                     });
+            });
         });
 
-    }));
+        /**
+         *  GET single posts
+         */
+        describe("GET api/v1/posts/:id", () => {
+
+            it("responds with single Post with id: 1", () => {
+                return chai.request(express).get("/api/v1/posts/1")
+                    .then((res: ChaiHttp.Response) => {
+                        expect(res.status).to.equal(200);
+                        const post: Post = res.body as Post;
+                        expect(post.id).to.equal(1);
+                    });
+            });
+
+            it("json object has correct shape", () => {
+                return chai.request(express).get("/api/v1/posts/1")
+                    .then((res: ChaiHttp.Response) => {
+                        expect(res.status).to.equal(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.all.keys(["id", "author", "text"]);
+                    });
+            });
+
+            it("should not have a Post with id 3", () => {
+                return chai.request(express).get("/api/v1/posts/3")
+                    .catch((err: any) => {
+                        expect(err.status).to.equal(404);
+                        expect(err.response.error.text).to.equal("Post with id: 3 not found");
+                    });
+            });
+        });
+
+    });
 
     run();
 }, 500);
 
-// describe("GET api/v1/posts/:id", test(function() {
-//
-//     const stub: sinon.SinonStub = sinon.stub(instance, "getPostById").returns(data);
-//     stub.withArgs(1).returns(data[0]);
-//     stub.withArgs(99999).callThrough();
-//
-//     it("responds with single Post with id: 1", test(function() {
-//         return chai.request(app).get("/api/v1/posts/1")
-//             .then((res: ChaiHttp.Response) => {
-//                 expect(res.status).to.equal(200);
-//                 expect(res).to.be.json;
-//
-//                 const post: Post = res.body as Post;
-//
-//                 expect(post.id).to.equal(1);
-//             });
-//     }));
-//
-//     it("should not have a Post with id 99999", () => {
-//         return chai.request(app).get("/api/v1/posts/99999")
-//             .catch((res: ChaiHttp.Response) => {
-//                 expect(res.status).to.equal(404);
-//             });
-//     });
-// }));
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //
 // describe("POST api/v1/posts/:id", () => {
 //

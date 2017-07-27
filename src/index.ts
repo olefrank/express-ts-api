@@ -4,6 +4,7 @@ import * as debug from "debug";
 import App from "./App";
 import {Server} from "net";
 import {Application} from "express";
+import {Connection} from "typeorm";
 
 debug("ts-express:server");
 
@@ -12,8 +13,10 @@ let server: Server;
 let express: Application;
 
 const app = new App();
-app.ready.then(() => {
+
+app.ready.then((connection) => {
     express = app.express;
+    this.connection = connection;
 
     port = normalizePort(process.env.PORT || 3000);
     express.set("port", port);

@@ -26,7 +26,7 @@ export class PostRouter {
         }
         catch (e) {
             console.error(e);
-            res.status(500).send({ message: e.message });
+            res.status(500).send(e.message);
         }
     }
 
@@ -34,13 +34,18 @@ export class PostRouter {
         try {
             const id: number = parseInt(req.params.id, 10);
             const post: IPost = await this.dao.getPostById(id);
-            const postVM: IPostVM = PostVM.toPostVM(post);
 
+            if ( !post ) {
+                res.status(404).send( `Post with id: ${id} not found` );
+                return;
+            }
+
+            const postVM: IPostVM = PostVM.toPostVM(post);
             res.send(postVM);
         }
         catch (e) {
             console.error(e);
-            res.status(500).send({ message: e.message });
+            res.status(500).send(e.message);
         }
     }
 
@@ -49,11 +54,11 @@ export class PostRouter {
             const post: IPost = PostVM.toPost(req.body);
             await this.dao.savePost(post);
 
-            res.send({ message: "Post saved" });
+            res.send("Post saved");
         }
         catch (e) {
             console.error(e);
-            res.status(500).send({ message: e.message });
+            res.status(500).send(e.message);
         }
     }
 
@@ -62,11 +67,11 @@ export class PostRouter {
             const post: IPost = PostVM.toPost(req.body);
             await this.dao.deletePost(post);
 
-            res.send({ message: "Post Deleted" });
+            res.send("Post Deleted");
         }
         catch (e) {
             console.error(e);
-            res.status(500).send({ message: e.message });
+            res.status(500).send(e.message);
         }
     }
 }

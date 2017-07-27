@@ -4,7 +4,7 @@ import * as logger from "morgan";
 import * as bodyParser from "body-parser";
 import "reflect-metadata";
 import PostRouter from "./routes/PostRouter";
-import {ConnectionOptions, createConnection} from "typeorm";
+import {Connection, ConnectionOptions, createConnection, getConnectionManager} from "typeorm";
 import config from "./config";
 
 // Creates and configures an ExpressJS web server.
@@ -16,24 +16,28 @@ class App {
     // ref to Express instance
     public express: express.Application;
 
+    public connection: Connection;
+
     // Run configuration methods on the Express instance.
     constructor() {
         this.ready = new Promise((resolve, reject) => {
-
-            // connect to database
-            const env: string = process.env.NODE_ENV || "dev";
-            const options: ConnectionOptions = config.database[env] as ConnectionOptions;
-            createConnection(options)
-                .then(() => {
-                    this.express = express();
-                    this.middleware();
-                    this.routes();
-                    resolve();
-                })
-                .catch((err) => {
-                    console.error(err);
-                    reject(err);
-                });
+            if ( !this.connection ) {
+                // connect to database
+                const env: string = process.env.NODE_ENV || "dev";
+                const options: ConnectionOptions = config.database[env] as ConnectionOptions;
+                createConnection(options)
+                    .then(async (connection) => {
+                        this.connection = connection;
+                        this.express = express();
+                        this.middleware();
+                        this.routes();
+                        resolve();
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                        reject(err);
+                    });
+            }
         });
     }
 
